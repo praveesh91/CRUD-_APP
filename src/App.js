@@ -1,26 +1,44 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from "react";
+import ReactDOM from "react-dom";
+import { Route, Switch, BrowserRouter } from "react-router-dom";
+import { Provider, connect } from "react-redux";
+import todos from "./components/todos";
+import NotFound from "./components/notFound";
+import userTodo from "./reducers";
+import { createStore, applyMiddleware, compose } from "redux";
+import thunk from "redux-thunk";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import "./App.css";
+import "antd/dist/antd.css";
+
+const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
+
+const store = createStore(userTodo, composeEnhancer(applyMiddleware(thunk)));
+
+class RootContainerComponent extends Component {
+  render() {
+    return (
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={todos} />
+          <Route component={NotFound} />
+        </Switch>
+      </BrowserRouter>
+    );
+  }
 }
 
-export default App;
+let RootContainer = connect()(RootContainerComponent);
+
+export default class App extends Component {
+  render() {
+    return (
+      <Provider store={store}>
+        <RootContainer />
+      </Provider>
+    );
+  }
+}
+
+const rootElement = document.getElementById("root");
+ReactDOM.render(<App />, rootElement);
